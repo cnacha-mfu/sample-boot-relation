@@ -27,9 +27,10 @@ public class SaleOrder {
     private String notes;
     private LocalDate orderDate;
     
-    // TODO: add @ManyToOne — many orders -> one customer; this side OWNS the
-    //       relationship, so Hibernate adds a customer_id column to this table
-    // TODO: add @JsonBackReference — the matching half of @JsonManagedReference
+    // many orders -> one customer; this side OWNS the relationship,
+    // so Hibernate adds a customer_id column to this table
+    @ManyToOne
+    @JsonBackReference
     private Customer customer;
 
     @ManyToMany

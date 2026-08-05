@@ -29,18 +29,24 @@ public class SaleOrderController {
     // POST for creating an order UNDER a customer (note the nested URL)
     @PostMapping("/customers/{customerId}/orders")
     public ResponseEntity<String> createOrder(@PathVariable Long customerId, @RequestBody SaleOrder order) {
-        // TODO: find the customer by customerId; if absent -> 404 NOT FOUND
-        // TODO: set the customer on the order (this is what links the two rows!)
-        // TODO: save the order -> 201 CREATED
-        return new ResponseEntity<String>(HttpStatus.NOT_IMPLEMENTED);
+        Optional<Customer> customer = customerRepo.findById(customerId);
+        if (!customer.isPresent()) {
+            return new ResponseEntity<String>("Customer not found", HttpStatus.NOT_FOUND);
+        }
+        // setting the customer is what links the two rows (fills customer_id)
+        order.setCustomer(customer.get());
+        orderRepo.save(order);
+        return new ResponseEntity<String>("Order created", HttpStatus.CREATED);
     }
 
     // GET for getting orders by customer
     @GetMapping("/customers/{customerId}/orders")
     public ResponseEntity<Collection<SaleOrder>> getOrdersByCustomer(@PathVariable Long customerId) {
-        // TODO: if the customer does not exist -> 404 NOT FOUND
-        // TODO: return orderRepo.findByCustomerId(customerId) with 200 OK
-        return new ResponseEntity<Collection<SaleOrder>>(HttpStatus.NOT_IMPLEMENTED);
+        if (!customerRepo.existsById(customerId)) {
+            return new ResponseEntity<Collection<SaleOrder>>(HttpStatus.NOT_FOUND);
+        }
+        Collection<SaleOrder> orders = orderRepo.findByCustomerId(customerId);
+        return new ResponseEntity<Collection<SaleOrder>>(orders, HttpStatus.OK);
     }
 
 
