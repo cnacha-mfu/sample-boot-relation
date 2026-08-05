@@ -36,8 +36,9 @@ public class Customer {
 
     private LocalDate birthday;
 
-    @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
-    @JsonManagedReference
+    // TODO: add @OneToMany(mappedBy = "customer", fetch = FetchType.LAZY)
+    //       one customer -> many orders; "mappedBy" says the OTHER side owns the join column
+    // TODO: add @JsonManagedReference — breaks the customer<->order loop when converting to JSON
     private List<SaleOrder> saleOrders;
 
     public List<SaleOrder> getSaleOrders() {

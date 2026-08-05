@@ -1,0 +1,165 @@
+{
+	"info": {
+		"name": "sample-boot-relation",
+		"description": "In-class demo requests for the JPA relationships demo (covers what lab-web-relation needs).\n\nStart the app first: mvn spring-boot:run\n\nRun top to bottom — or use 'Run collection'; every request carries tests that check the expected status code. Restart the app first for a clean database (data.sql loads 20 customers, ids 10001-10020).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "List all customers (200 OK)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 200 OK\", () => pm.response.to.have.status(200));",
+							"pm.test(\"20 customers from data.sql\", () => pm.expect(pm.response.json().length).to.eql(20));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": "{{baseUrl}}/customers"
+			}
+		},
+		{
+			"name": "Create an order under customer 10001 (201 CREATED)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 201 CREATED\", () => pm.response.to.have.status(201));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"notes\": \"first order for Jane\",\n  \"quantity\": 2\n}"
+				},
+				"url": "{{baseUrl}}/customers/10001/orders"
+			}
+		},
+		{
+			"name": "Create an order under unknown customer (404 NOT FOUND)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 404 NOT FOUND\", () => pm.response.to.have.status(404));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"notes\": \"order for nobody\",\n  \"quantity\": 1\n}"
+				},
+				"url": "{{baseUrl}}/customers/99999/orders"
+			}
+		},
+		{
+			"name": "List orders of customer 10001 (200 OK)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 200 OK\", () => pm.response.to.have.status(200));",
+							"pm.test(\"exactly the order we created\", () => pm.expect(pm.response.json().length).to.eql(1));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": "{{baseUrl}}/customers/10001/orders"
+			}
+		},
+		{
+			"name": "List orders of unknown customer (404 NOT FOUND)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 404 NOT FOUND\", () => pm.response.to.have.status(404));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": "{{baseUrl}}/customers/99999/orders"
+			}
+		},
+		{
+			"name": "List ALL orders (200 OK)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 200 OK\", () => pm.response.to.have.status(200));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": "{{baseUrl}}/orders"
+			}
+		},
+		{
+			"name": "Get one customer with their orders (200 OK)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"status is 200 OK\", () => pm.response.to.have.status(200));",
+							"pm.test(\"customer JSON embeds the orders (JsonManagedReference)\", () => pm.expect(pm.response.json().saleOrders.length).to.eql(1));"
+						]
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"url": "{{baseUrl}}/customers/10001"
+			}
+		}
+	]
+}
